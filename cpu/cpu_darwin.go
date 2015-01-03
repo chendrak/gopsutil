@@ -2,13 +2,25 @@
 
 package cpu
 
+/*
+#include <stdlib.h>
+#include <sys/sysctl.h>
+#include <sys/mount.h>
+#include <mach/mach_init.h>
+#include <mach/mach_host.h>
+#include <mach/host_info.h>
+#include <libproc.h>
+#include <mach/processor_info.h>
+#include <mach/vm_map.h>
+*/
+import "C"
+
 import (
 	"fmt"
 	"os/exec"
 	"strconv"
 	"strings"
-
-	common "github.com/shirou/gopsutil/common"
+	"unsafe"
 )
 
 // sys/resource.h
@@ -27,61 +39,28 @@ const (
 )
 
 func CPUTimes(percpu bool) ([]CPUTimesStat, error) {
+
 	var ret []CPUTimesStat
+	var count C.mach_msg_type_number_t = C.HOST_CPU_LOAD_INFO_COUNT
+	var cpuload C.host_cpu_load_info_data_t
 
-	var sysctlCall string
-	var ncpu int
-	if percpu {
-		sysctlCall = "kern.cp_times"
-		ncpu, _ = CPUCounts(true)
-	} else {
-		sysctlCall = "kern.cp_time"
-		ncpu = 1
+	status := C.host_statistics(C.host_t(C.mach_host_self()),
+		C.HOST_CPU_LOAD_INFO,
+		C.host_info_t(unsafe.Pointer(&cpuload)),
+		&count)
+
+	if status != C.KERN_SUCCESS {
+		return nil, fmt.Errorf("host_statistics error=%d", status)
 	}
 
-	cpuTimes, err := common.DoSysctrl(sysctlCall)
-	if err != nil {
-		return ret, err
+	cpu := CPUTimesStat{
+		User:   float32(cpuload.cpu_ticks[C.CPU_STATE_USER]),
+		System: float32(cpuload.cpu_ticks[C.CPU_STATE_SYSTEM]),
+		Idle:   float32(cpuload.cpu_ticks[C.CPU_STATE_IDLE]),
+		Nice:   float32(cpuload.cpu_ticks[C.CPU_STATE_NICE]),
 	}
 
-	for i := 0; i < ncpu; i++ {
-		offset := CPUStates * i
-		user, err := strconv.ParseFloat(cpuTimes[CPUser+offset], 32)
-		if err != nil {
-			return ret, err
-		}
-		nice, err := strconv.ParseFloat(cpuTimes[CPNice+offset], 32)
-		if err != nil {
-			return ret, err
-		}
-		sys, err := strconv.ParseFloat(cpuTimes[CPSys+offset], 32)
-		if err != nil {
-			return ret, err
-		}
-		idle, err := strconv.ParseFloat(cpuTimes[CPIdle+offset], 32)
-		if err != nil {
-			return ret, err
-		}
-		intr, err := strconv.ParseFloat(cpuTimes[CPIntr+offset], 32)
-		if err != nil {
-			return ret, err
-		}
-
-		c := CPUTimesStat{
-			User:   float32(user / ClocksPerSec),
-			Nice:   float32(nice / ClocksPerSec),
-			System: float32(sys / ClocksPerSec),
-			Idle:   float32(idle / ClocksPerSec),
-			Irq:    float32(intr / ClocksPerSec),
-		}
-		if !percpu {
-			c.CPU = "cpu-total"
-		} else {
-			c.CPU = fmt.Sprintf("cpu%d", i)
-		}
-
-		ret = append(ret, c)
-	}
+	ret = append(ret, cpu)
 
 	return ret, nil
 }
