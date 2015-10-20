@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	common "github.com/shirou/chendrak/common"
+	common "github.com/chendrak/gopsutil/common"
 )
 
 // sys/resource.h
