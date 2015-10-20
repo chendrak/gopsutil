@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	common "github.com/shirou/gopsutil/common"
-	cpu "github.com/shirou/gopsutil/cpu"
+	common "github.com/chendrak/gopsutil/common"
+	cpu "github.com/chendrak/gopsutil/cpu"
 )
 
 type CgroupMemStat struct {

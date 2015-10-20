@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/shirou/gopsutil/common"
+	"github.com/chendrak/gopsutil/common"
 )
 
 func NetIOCounters(pernic bool) ([]NetIOCountersStat, error) {

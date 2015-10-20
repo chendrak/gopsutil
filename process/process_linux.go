@@ -11,10 +11,10 @@ import (
 	"strings"
 	"syscall"
 
-	common "github.com/shirou/gopsutil/common"
-	cpu "github.com/shirou/gopsutil/cpu"
-	host "github.com/shirou/gopsutil/host"
-	net "github.com/shirou/gopsutil/net"
+	common "github.com/chendrak/gopsutil/common"
+	cpu "github.com/chendrak/gopsutil/cpu"
+	host "github.com/chendrak/gopsutil/host"
+	net "github.com/chendrak/gopsutil/net"
 )
 
 const (

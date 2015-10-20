@@ -7,7 +7,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	common "github.com/shirou/gopsutil/common"
+	common "github.com/chendrak/gopsutil/common"
 )
 
 var (

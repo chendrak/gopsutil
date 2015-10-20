@@ -9,9 +9,9 @@ import (
 
 	"github.com/shirou/w32"
 
-	common "github.com/shirou/gopsutil/common"
-	cpu "github.com/shirou/gopsutil/cpu"
-	net "github.com/shirou/gopsutil/net"
+	common "github.com/chendrak/gopsutil/common"
+	cpu "github.com/chendrak/gopsutil/cpu"
+	net "github.com/chendrak/gopsutil/net"
 )
 
 const (
